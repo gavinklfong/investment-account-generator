@@ -11,13 +11,16 @@ type Account struct {
 	Number string
 }
 
+const BatchSize = 1000000
+const OutputPath = "./output"
+
 func main() {
 
 	log.SetFlags(0)
 
 	for batch := 0; batch < 5; batch++ {
-		start := batch*1000000 + 1
-		end := start + 1000000 - 1
+		start := batch*BatchSize + 1
+		end := start + BatchSize - 1
 		generateAccount(batch, start, end)
 	}
 
@@ -25,7 +28,7 @@ func main() {
 
 func generateAccount(batch, start, end int) {
 
-	f, err := os.OpenFile(fmt.Sprintf("./investment-account-%01d.csv", batch), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+	f, err := os.OpenFile(fmt.Sprintf("%v/investment-account-%01d.csv", OutputPath, batch), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Panic(err)
 	}
