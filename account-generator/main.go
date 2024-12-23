@@ -7,18 +7,26 @@ import (
 	"os"
 )
 
-type Account struct {
-	Number string
-}
-
 const BatchSize = 1000000
 const OutputPath = "./output"
+
+type Account struct {
+	Number        string
+	StockHoldings map[string]float32
+}
+
+func NewAccount(number string) *Account {
+	account := new(Account)
+	account.Number = number
+	account.StockHoldings = map[string]float32{}
+	return account
+}
 
 func main() {
 
 	log.SetFlags(0)
 
-	for batch := 0; batch < 5; batch++ {
+	for batch := 0; batch < 2; batch++ {
 		start := batch*BatchSize + 1
 		end := start + BatchSize - 1
 		generateAccount(batch, start, end)
@@ -34,9 +42,9 @@ func generateAccount(batch, start, end int) {
 	}
 
 	for seq := start; seq <= end; seq++ {
-		accountNumber := fmt.Sprintf("INV-%010d", seq)
+		account := NewAccount(fmt.Sprintf("INV-%010d", seq))
 		// log.Println(accountNumber)
-		if _, err = io.WriteString(f, fmt.Sprintln(accountNumber)); err != nil {
+		if _, err = io.WriteString(f, fmt.Sprintln(account.Number)); err != nil {
 			log.Panic(err)
 		}
 	}
