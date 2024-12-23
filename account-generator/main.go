@@ -9,7 +9,7 @@ import (
 )
 
 const AccountPrefix = "INV"
-const BatchSize = 1000000
+const BatchSize = 10
 const OutputPath = "./output"
 const MaxHoldingUnit = 100
 
@@ -27,7 +27,7 @@ func NewAccount(number string) *Account {
 	return account
 }
 
-func main2() {
+func main() {
 
 	log.SetFlags(0)
 
@@ -39,18 +39,19 @@ func main2() {
 
 }
 
-func main() {
+func main2() {
 	log.SetFlags(0)
 	generateAccount(1)
 }
 
-func generateAccount(suffix int) {
+func generateAccount(suffix int) *Account {
 	account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, suffix))
 	tickerCount := rand.Intn(len(TickerList))
 	for _, value := range rand.Perm(tickerCount) {
 		account.StockHoldings[TickerList[value]] = rand.Intn(MaxHoldingUnit)
 	}
-	fmt.Printf("%v\n", account)
+	// fmt.Printf("%v\n", *account)
+	return account
 }
 
 func generateAndWriteAccount(batch, start, end int) {
@@ -61,13 +62,13 @@ func generateAndWriteAccount(batch, start, end int) {
 	}
 
 	for seq := start; seq <= end; seq++ {
-		account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, seq))
-		// log.Println(accountNumber)
+		// account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, seq))
+		account := generateAccount(seq)
+		fmt.Printf("%v\n", *account)
 		if _, err = io.WriteString(f, fmt.Sprintln(account.Number)); err != nil {
 			log.Panic(err)
 		}
 	}
-
 }
 
 func writeFileExample() {
