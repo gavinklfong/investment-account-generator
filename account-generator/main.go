@@ -4,37 +4,56 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 )
 
+const AccountPrefix = "INV-"
 const BatchSize = 1000000
 const OutputPath = "./output"
+const MaxHoldingUnit = 100
+
+var TickerList = []string{"AAPL", "SBUX", "MSFT", "CSCO", "QCOM", "META", "AMZN", "TSLA", "AMD", "NFLX"}
 
 type Account struct {
 	Number        string
-	StockHoldings map[string]float32
+	StockHoldings map[string]int
 }
 
 func NewAccount(number string) *Account {
 	account := new(Account)
 	account.Number = number
-	account.StockHoldings = map[string]float32{}
+	account.StockHoldings = map[string]int{}
 	return account
 }
 
-func main() {
+func main2() {
 
 	log.SetFlags(0)
 
 	for batch := 0; batch < 2; batch++ {
 		start := batch*BatchSize + 1
 		end := start + BatchSize - 1
-		generateAccount(batch, start, end)
+		generateAndWriteAccount(batch, start, end)
 	}
 
 }
 
-func generateAccount(batch, start, end int) {
+func main() {
+	log.SetFlags(0)
+	generateAccount(1)
+}
+
+func generateAccount(suffix int) {
+	account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, suffix))
+	tickerCount := rand.Intn(len(TickerList))
+	for _, value := range rand.Perm(tickerCount) {
+		account.StockHoldings[TickerList[value]] = rand.Intn(MaxHoldingUnit)
+	}
+	fmt.Printf("%v\n", account)
+}
+
+func generateAndWriteAccount(batch, start, end int) {
 
 	f, err := os.OpenFile(fmt.Sprintf("%v/investment-account-%01d.csv", OutputPath, batch), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
@@ -42,7 +61,7 @@ func generateAccount(batch, start, end int) {
 	}
 
 	for seq := start; seq <= end; seq++ {
-		account := NewAccount(fmt.Sprintf("INV-%010d", seq))
+		account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, seq))
 		// log.Println(accountNumber)
 		if _, err = io.WriteString(f, fmt.Sprintln(account.Number)); err != nil {
 			log.Panic(err)
