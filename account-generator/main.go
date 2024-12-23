@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const AccountPrefix = "INV-"
+const AccountPrefix = "INV"
 const BatchSize = 1000000
 const OutputPath = "./output"
 const MaxHoldingUnit = 100
