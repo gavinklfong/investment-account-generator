@@ -2,10 +2,8 @@ package csv
 
 import (
 	"encoding/csv"
-	"fmt"
 	"io"
 	"strconv"
-	"strings"
 
 	"example.com/investment"
 )
@@ -37,7 +35,7 @@ func (w *Writer) Write(account *investment.Account) error {
 		}
 	}
 
-	fmt.Println(strings.Join(fields[:], ","))
+	// fmt.Println(strings.Join(fields[:], ","))
 
 	return w.w.Write(fields[:])
 }

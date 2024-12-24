@@ -2,7 +2,6 @@ package json
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 
 	"example.com/investment"
@@ -31,7 +30,7 @@ func (w *Writer) Write(account *investment.Account) error {
 		return err
 	}
 
-	fmt.Println(string(b))
+	// fmt.Println(string(b))
 	_, err = w.w.Write(append(b, ",\n"...))
 	return err
 }

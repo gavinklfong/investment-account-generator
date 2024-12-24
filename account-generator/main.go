@@ -13,10 +13,11 @@ import (
 
 const (
 	AccountPrefix  = "INV"
-	BatchSize      = 10
+	BatchCount     = 20
+	BatchSize      = 1000000
 	OutputPath     = "./output"
 	MaxHoldingUnit = 100
-	Encoding       = "JSON"
+	Encoding       = "CSV"
 )
 
 var TickerList = []string{"AAPL", "SBUX", "MSFT", "CSCO", "QCOM", "META", "AMZN", "TSLA", "AMD", "NFLX"}
@@ -25,10 +26,19 @@ func main() {
 
 	log.SetFlags(0)
 
-	for batch := 0; batch < 2; batch++ {
+	c := make(chan struct{})
+
+	for batch := 0; batch < BatchCount; batch++ {
 		start := batch*BatchSize + 1
 		end := start + BatchSize - 1
-		generateAndWriteAccount(batch, start, end)
+		go func() {
+			generateAndWriteAccount(batch, start, end)
+			c <- struct{}{}
+		}()
+	}
+
+	for batch := 0; batch < BatchCount; batch++ {
+		<-c
 	}
 
 }
