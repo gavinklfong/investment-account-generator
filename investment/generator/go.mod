@@ -1,14 +1,14 @@
-module example.com/account-generator
+module example.com/investment/generator
 
 go 1.23.4
 
-replace example.com/investment => ../investment
+replace example.com/investment => ../
 
-replace example.com/investment/encoding => ../investment/encoding
+replace example.com/investment/encoding => ../encoding
 
-replace example.com/investment/encoding/csv => ../investment/encoding/csv
+replace example.com/investment/encoding/csv => ../encoding/csv
 
-replace example.com/investment/encoding/json => ../investment/encoding/json
+replace example.com/investment/encoding/json => ../encoding/json
 
 require (
 	example.com/investment v0.0.0-00010101000000-000000000000
