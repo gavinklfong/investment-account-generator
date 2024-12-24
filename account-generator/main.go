@@ -6,14 +6,43 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
+	"strings"
 )
 
-const AccountPrefix = "INV"
-const BatchSize = 10
-const OutputPath = "./output"
-const MaxHoldingUnit = 100
+const (
+	AccountPrefix  = "INV"
+	BatchSize      = 10
+	OutputPath     = "./output"
+	MaxHoldingUnit = 100
+)
 
 var TickerList = []string{"AAPL", "SBUX", "MSFT", "CSCO", "QCOM", "META", "AMZN", "TSLA", "AMD", "NFLX"}
+
+type AccountWriter interface {
+	Write(account *Account) string
+}
+
+type JSONWriter struct{}
+type CSVWriter struct{}
+
+// func (w *JSONWriter) Write(account *Account) string {
+
+// }
+
+func (w *CSVWriter) Write(account *Account) string {
+	var fields [11]string
+	fields[0] = account.Number
+
+	for i, ticker := range TickerList {
+		unit, ok := account.StockHoldings[ticker]
+		if ok {
+			fields[i+1] = strconv.Itoa(unit)
+		}
+	}
+
+	return strings.Join(fields[:], ",")
+}
 
 type Account struct {
 	Number        string
@@ -61,10 +90,12 @@ func generateAndWriteAccount(batch, start, end int) {
 		log.Panic(err)
 	}
 
+	writer := CSVWriter{}
+
 	for seq := start; seq <= end; seq++ {
 		// account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, seq))
 		account := generateAccount(seq)
-		fmt.Printf("%v\n", *account)
+		fmt.Printf("%v\n", writer.Write(account))
 		if _, err = io.WriteString(f, fmt.Sprintln(account.Number)); err != nil {
 			log.Panic(err)
 		}
