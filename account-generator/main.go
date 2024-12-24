@@ -26,6 +26,10 @@ func main() {
 
 	log.SetFlags(0)
 
+	if yes, _ := exists(OutputPath); !yes {
+		os.Mkdir(OutputPath, os.ModePerm)
+	}
+
 	c := make(chan struct{})
 
 	for batch := 0; batch < BatchCount; batch++ {
@@ -41,6 +45,17 @@ func main() {
 		<-c
 	}
 
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 func generateAccount(suffix int) *investment.Account {
