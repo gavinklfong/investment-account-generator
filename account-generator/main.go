@@ -13,8 +13,8 @@ import (
 
 const (
 	AccountPrefix  = "INV"
-	BatchCount     = 20
-	BatchSize      = 1000000
+	BatchCount     = 2
+	BatchSize      = 10
 	OutputPath     = "./output"
 	MaxHoldingUnit = 100
 	Encoding       = "CSV"
