@@ -1,14 +1,14 @@
 package main
 
 import (
-	"encoding/csv"
+	// "encoding/csv"
 	"fmt"
-	"io"
 	"log"
 	"math/rand"
 	"os"
-	"strconv"
-	"strings"
+
+	"example.com/investment"
+	"example.com/investment/encoding/csv"
 )
 
 const (
@@ -21,60 +21,11 @@ const (
 var TickerList = []string{"AAPL", "SBUX", "MSFT", "CSCO", "QCOM", "META", "AMZN", "TSLA", "AMD", "NFLX"}
 
 type AccountWriter interface {
-	Write(account *Account) string
-}
-
-type JSONWriter struct{}
-type CSVWriter struct {
-	w *csv.Writer
-}
-
-func NewCSVWriter(w io.Writer) *CSVWriter {
-	return &CSVWriter{
-		w: csv.NewWriter(w),
-	}
-}
-
-func (w *CSVWriter) WriteHeader() error {
-	return w.w.Write(Insert(TickerList, "AccountNumber", 0))
-}
-
-func (w *CSVWriter) Write(account *Account) error {
-	var fields [11]string
-	fields[0] = account.Number
-
-	for i, ticker := range TickerList {
-		unit, ok := account.StockHoldings[ticker]
-		if ok {
-			fields[i+1] = strconv.Itoa(unit)
-		} else {
-			fields[i+1] = "0"
-		}
-	}
-
-	fmt.Println(strings.Join(fields[:], ","))
-
-	return w.w.Write(fields[:])
-}
-
-func (w *CSVWriter) Flush() {
-	w.w.Flush()
+	Write(account *investment.Account) string
 }
 
 func Insert(array []string, element string, i int) []string {
 	return append(array[:i], append([]string{element}, array[i:]...)...)
-}
-
-type Account struct {
-	Number        string
-	StockHoldings map[string]int
-}
-
-func NewAccount(number string) *Account {
-	account := new(Account)
-	account.Number = number
-	account.StockHoldings = map[string]int{}
-	return account
 }
 
 func main() {
@@ -89,8 +40,8 @@ func main() {
 
 }
 
-func generateAccount(suffix int) *Account {
-	account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, suffix))
+func generateAccount(suffix int) *investment.Account {
+	account := investment.NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, suffix))
 	tickerCount := rand.Intn(len(TickerList))
 	for _, value := range rand.Perm(tickerCount) {
 		account.StockHoldings[TickerList[value]] = rand.Intn(MaxHoldingUnit)
@@ -106,10 +57,10 @@ func generateAndWriteAccount(batch, start, end int) {
 	}
 	defer file.Close()
 
-	writer := NewCSVWriter(file)
+	writer := csv.NewWriter(TickerList, file)
 	defer writer.Flush()
 
-	if err = writer.WriteHeader(); err != nil {
+	if err = writer.Init(); err != nil {
 		log.Panic(err)
 	}
 
