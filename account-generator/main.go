@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"io"
 	"log"
@@ -24,13 +25,21 @@ type AccountWriter interface {
 }
 
 type JSONWriter struct{}
-type CSVWriter struct{}
+type CSVWriter struct {
+	w *csv.Writer
+}
 
-// func (w *JSONWriter) Write(account *Account) string {
+func NewCSVWriter(w io.Writer) *CSVWriter {
+	return &CSVWriter{
+		w: csv.NewWriter(w),
+	}
+}
 
-// }
+func (w *CSVWriter) WriteHeader() error {
+	return w.w.Write(Insert(TickerList, "AccountNumber", 0))
+}
 
-func (w *CSVWriter) Write(account *Account) string {
+func (w *CSVWriter) Write(account *Account) error {
 	var fields [11]string
 	fields[0] = account.Number
 
@@ -38,10 +47,22 @@ func (w *CSVWriter) Write(account *Account) string {
 		unit, ok := account.StockHoldings[ticker]
 		if ok {
 			fields[i+1] = strconv.Itoa(unit)
+		} else {
+			fields[i+1] = "0"
 		}
 	}
 
-	return strings.Join(fields[:], ",")
+	fmt.Println(strings.Join(fields[:], ","))
+
+	return w.w.Write(fields[:])
+}
+
+func (w *CSVWriter) Flush() {
+	w.w.Flush()
+}
+
+func Insert(array []string, element string, i int) []string {
+	return append(array[:i], append([]string{element}, array[i:]...)...)
 }
 
 type Account struct {
@@ -68,10 +89,10 @@ func main() {
 
 }
 
-func main2() {
-	log.SetFlags(0)
-	generateAccount(1)
-}
+// func main2() {
+// 	log.SetFlags(0)
+// 	generateAccount(1)
+// }
 
 func generateAccount(suffix int) *Account {
 	account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, suffix))
@@ -79,24 +100,27 @@ func generateAccount(suffix int) *Account {
 	for _, value := range rand.Perm(tickerCount) {
 		account.StockHoldings[TickerList[value]] = rand.Intn(MaxHoldingUnit)
 	}
-	// fmt.Printf("%v\n", *account)
 	return account
 }
 
 func generateAndWriteAccount(batch, start, end int) {
 
-	f, err := os.OpenFile(fmt.Sprintf("%v/investment-account-%01d.csv", OutputPath, batch), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+	file, err := os.OpenFile(fmt.Sprintf("%v/investment-account-%01d.csv", OutputPath, batch), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Panic(err)
 	}
+	defer file.Close()
 
-	writer := CSVWriter{}
+	writer := NewCSVWriter(file)
+	defer writer.Flush()
+
+	if err = writer.WriteHeader(); err != nil {
+		log.Panic(err)
+	}
 
 	for seq := start; seq <= end; seq++ {
-		// account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, seq))
 		account := generateAccount(seq)
-		fmt.Printf("%v\n", writer.Write(account))
-		if _, err = io.WriteString(f, fmt.Sprintln(account.Number)); err != nil {
+		if err = writer.Write(account); err != nil {
 			log.Panic(err)
 		}
 	}
