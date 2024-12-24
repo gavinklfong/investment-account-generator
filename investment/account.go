@@ -1,8 +1,8 @@
 package investment
 
 type Account struct {
-	Number        string
-	StockHoldings map[string]int
+	Number        string         `json:"accountNumber"`
+	StockHoldings map[string]int `json:"stockHoldings"`
 }
 
 func NewAccount(number string) *Account {

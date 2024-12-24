@@ -34,8 +34,6 @@ func (w *Writer) Write(account *investment.Account) error {
 		unit, ok := account.StockHoldings[ticker]
 		if ok {
 			fields[i+1] = strconv.Itoa(unit)
-		} else {
-			fields[i+1] = "0"
 		}
 	}
 
@@ -44,7 +42,7 @@ func (w *Writer) Write(account *investment.Account) error {
 	return w.w.Write(fields[:])
 }
 
-func (w *Writer) Flush() {
+func (w *Writer) End() {
 	w.w.Flush()
 }
 

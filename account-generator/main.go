@@ -1,14 +1,14 @@
 package main
 
 import (
-	// "encoding/csv"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 
 	"example.com/investment"
-	"example.com/investment/encoding/csv"
+	"example.com/investment/encoding"
 )
 
 const (
@@ -16,17 +16,10 @@ const (
 	BatchSize      = 10
 	OutputPath     = "./output"
 	MaxHoldingUnit = 100
+	Encoding       = "JSON"
 )
 
 var TickerList = []string{"AAPL", "SBUX", "MSFT", "CSCO", "QCOM", "META", "AMZN", "TSLA", "AMD", "NFLX"}
-
-type AccountWriter interface {
-	Write(account *investment.Account) string
-}
-
-func Insert(array []string, element string, i int) []string {
-	return append(array[:i], append([]string{element}, array[i:]...)...)
-}
 
 func main() {
 
@@ -51,14 +44,14 @@ func generateAccount(suffix int) *investment.Account {
 
 func generateAndWriteAccount(batch, start, end int) {
 
-	file, err := os.OpenFile(fmt.Sprintf("%v/investment-account-%01d.csv", OutputPath, batch), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+	file, err := os.OpenFile(fmt.Sprintf("%v/investment-account-%01d.%v", OutputPath, batch, strings.ToLower(Encoding)), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer file.Close()
 
-	writer := csv.NewWriter(TickerList, file)
-	defer writer.Flush()
+	writer := encoding.NewWriter(Encoding, TickerList, file)
+	defer writer.End()
 
 	if err = writer.Init(); err != nil {
 		log.Panic(err)
