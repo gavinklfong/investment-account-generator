@@ -1,4 +1,4 @@
-module example.com/account-generator
+module example.com/generator
 
 go 1.23.4
 
