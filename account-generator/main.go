@@ -89,11 +89,6 @@ func main() {
 
 }
 
-// func main2() {
-// 	log.SetFlags(0)
-// 	generateAccount(1)
-// }
-
 func generateAccount(suffix int) *Account {
 	account := NewAccount(fmt.Sprintf("%v-%010d", AccountPrefix, suffix))
 	tickerCount := rand.Intn(len(TickerList))
@@ -124,22 +119,4 @@ func generateAndWriteAccount(batch, start, end int) {
 			log.Panic(err)
 		}
 	}
-}
-
-func writeFileExample() {
-	f, err := os.OpenFile("./test.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-	if err != nil {
-		panic(err)
-	}
-
-	defer f.Close()
-
-	if _, err = f.WriteString("testing\n"); err != nil {
-		panic(err)
-	}
-
-	if _, err = io.WriteString(f, "testing (written by io package)\n"); err != nil {
-		panic(err)
-	}
-
 }
