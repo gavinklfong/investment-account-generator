@@ -24,13 +24,12 @@ func (w *Writer) Init() error {
 	return err
 }
 
-func (w *Writer) Write(account *investment.Account) error {
-	b, err := json.Marshal(account)
+func (w *Writer) Write(accountHolding *investment.AccountHolding) error {
+	b, err := json.Marshal(accountHolding)
 	if err != nil {
 		return err
 	}
 
-	// fmt.Println(string(b))
 	_, err = w.w.Write(append(b, ",\n"...))
 	return err
 }

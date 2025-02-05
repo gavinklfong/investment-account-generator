@@ -1,2 +1,2 @@
-account-generator/output/*.csv
-account-generator/output/*.json
+generator/output/*.csv
+generator/output/*.json

@@ -11,7 +11,7 @@ import (
 
 type Writer interface {
 	Init() error
-	Write(account *investment.Account) error
+	Write(accountHolding *investment.AccountHolding) error
 	End()
 }
 

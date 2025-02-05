@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"io"
 	"strconv"
+	"time"
 
 	"example.com/investment"
 )
@@ -24,18 +25,17 @@ func (w *Writer) Init() error {
 	return w.w.Write(insert(w.TickerList, "AccountNumber", 0))
 }
 
-func (w *Writer) Write(account *investment.Account) error {
-	var fields [11]string
-	fields[0] = account.Number
+func (w *Writer) Write(accountHolding *investment.AccountHolding) error {
+	var fields [12]string
+	fields[0] = accountHolding.Number
+	fields[1] = accountHolding.Date.In(time.UTC).Format(time.DateOnly)
 
 	for i, ticker := range w.TickerList {
-		unit, ok := account.StockHoldings[ticker]
+		unit, ok := accountHolding.StockHoldings[ticker]
 		if ok {
-			fields[i+1] = strconv.Itoa(unit)
+			fields[i+2] = strconv.Itoa(unit)
 		}
 	}
-
-	// fmt.Println(strings.Join(fields[:], ","))
 
 	return w.w.Write(fields[:])
 }
