@@ -1,4 +1,4 @@
-# Investment account generator
+# Investment account holding generator
 
 This is to generate investment account with random holding units for the following tickers:
 "AAPL", "SBUX", "MSFT", "CSCO", "QCOM", "META", "AMZN", "TSLA", "AMD", "NFLX"
@@ -14,6 +14,8 @@ const (
 	OutputPath     = "./output"
 	MaxHoldingUnit = 100
 	Encoding       = "CSV"
+	StartDate      = "2024-01-01"
+	EndDate        = "2024-12-31"
 )
 ```
 
